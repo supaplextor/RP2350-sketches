@@ -8,7 +8,7 @@
 
 #include "pico/stdlib.h"
 
-#define LINE_BUF_SIZE 96
+#define LINE_BUF_SIZE 256
 
 #define MAX_SCALE 9
 #define MAX_IDENT 16
@@ -351,12 +351,12 @@ static bool value_pow(Value base, Value exp, Value *out) {
 
 static void print_int_base(int64_t value, int base) {
     if (base < 2 || base > 16) {
-        printf("error: obase out of range\\n");
+        printf("error: obase out of range\n");
         return;
     }
 
     if (value == 0) {
-        printf("0\\n");
+        printf("0\n");
         return;
     }
 
@@ -383,7 +383,7 @@ static void print_value(Value v) {
     if (g_obase != 10) {
         int64_t i = 0;
         if (!to_int(v, &i)) {
-            printf("error: non-integer cannot be printed with obase != 10\\n");
+            printf("error: non-integer cannot be printed with obase != 10\n");
             return;
         }
         print_int_base(i, g_obase);
@@ -393,7 +393,7 @@ static void print_value(Value v) {
     bool ok = false;
     int64_t denom = pow10_i(v.scale, &ok);
     if (!ok || denom == 0) {
-        printf("error: print overflow\\n");
+        printf("error: print overflow\n");
         return;
     }
 
@@ -407,7 +407,7 @@ static void print_value(Value v) {
     int64_t frac = (v.scale == 0) ? 0 : (mag % denom);
 
     if (v.scale == 0) {
-        printf("%s%lld\\n", neg ? "-" : "", (long long)whole);
+        printf("%s%lld\n", neg ? "-" : "", (long long)whole);
         return;
     }
 
@@ -417,7 +417,7 @@ static void print_value(Value v) {
         frac /= 10;
     }
     frac_buf[v.scale] = '\0';
-    printf("%s%lld.%s\\n", neg ? "-" : "", (long long)whole, frac_buf);
+    printf("%s%lld.%s\n", neg ? "-" : "", (long long)whole, frac_buf);
 }
 
 static Value parse_expr(Parser *p);
@@ -582,11 +582,11 @@ static bool starts_with_ident_assignment(const char *line, char *ident_out, cons
 }
 
 static void print_help(void) {
-    printf("serial-bc style calculator\\n");
-    printf("Supported: + - * / %% ^, parentheses, unary +/-\\n");
-    printf("Variables: name = expr, then use name in expressions\\n");
-    printf("Settings: scale=0..9, ibase=2..16, obase=2..16\\n");
-    printf("Commands: help, quit, exit\\n");
+    printf("serial-bc style calculator\n");
+    printf("Supported: + - * / %% ^, parentheses, unary +/-\n");
+    printf("Variables: name = expr, then use name in expressions\n");
+    printf("Settings: scale=0..9, ibase=2..16, obase=2..16\n");
+    printf("Commands: help, quit, exit\n");
 }
 
 static bool eval_line(const char *line, Value *out, bool *has_out, bool *should_quit) {
@@ -616,14 +616,14 @@ static bool eval_line(const char *line, Value *out, bool *has_out, bool *should_
         Value v = parse_expr(&p);
         skip_ws(&p);
         if (p.error[0] != '\0' || *p.s != '\0') {
-            printf("error: %s\\n", p.error[0] ? p.error : "trailing input");
+            printf("error: %s\n", p.error[0] ? p.error : "trailing input");
             return false;
         }
 
         if (strcmp(ident, "scale") == 0) {
             int64_t iv = 0;
             if (!to_int(v, &iv) || iv < 0 || iv > MAX_SCALE) {
-                printf("error: scale must be integer in 0..%d\\n", MAX_SCALE);
+                printf("error: scale must be integer in 0..%d\n", MAX_SCALE);
                 return false;
             }
             g_scale = (int)iv;
@@ -634,7 +634,7 @@ static bool eval_line(const char *line, Value *out, bool *has_out, bool *should_
         if (strcmp(ident, "ibase") == 0) {
             int64_t iv = 0;
             if (!to_int(v, &iv) || iv < 2 || iv > 16) {
-                printf("error: ibase must be integer in 2..16\\n");
+                printf("error: ibase must be integer in 2..16\n");
                 return false;
             }
             g_ibase = (int)iv;
@@ -645,7 +645,7 @@ static bool eval_line(const char *line, Value *out, bool *has_out, bool *should_
         if (strcmp(ident, "obase") == 0) {
             int64_t iv = 0;
             if (!to_int(v, &iv) || iv < 2 || iv > 16) {
-                printf("error: obase must be integer in 2..16\\n");
+                printf("error: obase must be integer in 2..16\n");
                 return false;
             }
             g_obase = (int)iv;
@@ -655,7 +655,7 @@ static bool eval_line(const char *line, Value *out, bool *has_out, bool *should_
         }
 
         if (!set_variable(ident, v)) {
-            printf("error: variable table full\\n");
+            printf("error: variable table full\n");
             return false;
         }
         *out = v;
@@ -667,7 +667,7 @@ static bool eval_line(const char *line, Value *out, bool *has_out, bool *should_
     Value v = parse_expr(&p);
     skip_ws(&p);
     if (p.error[0] != '\0' || *p.s != '\0') {
-        printf("error: %s\\n", p.error[0] ? p.error : "trailing input");
+        printf("error: %s\n", p.error[0] ? p.error : "trailing input");
         return false;
     }
 
@@ -680,9 +680,9 @@ int main(void) {
     stdio_init_all();
 
     sleep_ms(1500);
-    printf("serial-calc (Pico SDK, RP2350)\\n");
+    printf("serial-calc (Pico SDK, RP2350)\n");
     print_help();
-    printf("> ");
+    printf("\nRP2350> ");
 
     char line[LINE_BUF_SIZE];
     size_t len = 0;
@@ -695,8 +695,9 @@ int main(void) {
         }
 
         if (ch == '\r' || ch == '\n') {
+            putchar('\n');
             if (len == 0) {
-                printf("> ");
+                printf("RP2350> ");
                 continue;
             }
 
@@ -708,17 +709,18 @@ int main(void) {
                 print_value(result);
             }
             if (should_quit) {
-                printf("bye\\n");
+                printf("bye\n");
                 break;
             }
             len = 0;
-            printf("> ");
+            printf("RP2350> ");
             continue;
         }
 
         if (ch == 0x7F || ch == '\b') {
             if (len > 0) {
                 len--;
+                printf("\b \b");
             }
             continue;
         }
@@ -729,9 +731,11 @@ int main(void) {
 
         if (len + 1 < LINE_BUF_SIZE) {
             line[len++] = (char)ch;
+            putchar(ch);
         } else {
-            printf("error: line too long\\n");
+            printf("\nerror: line too long\n");
             len = 0;
+            printf("RP2350> ");
         }
     }
 

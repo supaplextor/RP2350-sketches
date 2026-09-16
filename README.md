@@ -24,3 +24,8 @@ cmake --build build -j8
 ```
 
 Artifacts are generated under `build/`, including UF2 output for flashing.
+
+3. Copy to RP filesystem
+
+```bash
+cp -v build/serial_calc.uf2 /media/.../RP
